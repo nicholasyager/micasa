@@ -1,0 +1,10 @@
+{
+    "name"        : "Home",
+    "description" : "Server side software for home automation.",
+    "version"     : "0.0.1",
+    "private"     : true,
+    "dependencies": {
+        "mosca" : "0.31.1"
+    }
+}
+

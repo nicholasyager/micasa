@@ -1,0 +1,81 @@
+<html>
+    <head>
+        <title>MiCasa</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale:1.0">
+        <script src="/mqtt.js"></script>
+        <script src="js/jquery-2.1.4.min.js"></script>
+        <link href="style.css" rel="stylesheet">
+
+    </head>
+    <body>
+        <h1>MiCasa</h1>
+        <div id=lights></div>
+        <div id=console></div>
+        <script>
+            var endpoints;
+            
+            var client = mqtt.connect();
+            client.subscribe({"#":1});
+            client.on("message", function(topic, payload) {
+                if (topic == "clients") {
+                    endpoints = JSON.parse(payload);
+                    console.log(endpoints);
+                    $.each(endpoints, function( topic, endpoint) {
+                        path = topic.split("/");
+                        ids = "";
+                        $.each(path, function(index, position) {
+                            if (index < path.length - 1) {
+                                classStr = "";
+                                if (index == 1) {
+                                    classStr = "room";
+                                } else if ( index == 2 ) {
+                                    classStr = "group";
+                                }
+                                previousIds = ids;
+                                ids += " #"+position;
+                                if ($(ids).length == 0) {
+                                    $(previousIds).append("<h"+
+                                            (index+2)+">"+position.capitalizeFirstLetter()+
+                                            "</h"+(index+2)+"><div id="+position+" class='"+classStr+"'></div>");
+                                }
+                            }
+
+                        });
+                        if ($("#"+topic.replace(/\//g,"-")).length == 0) {
+                            classStr="button";
+                            if (endpoint.value == "1") { classStr+=" on";}
+                            $(ids).append("<div class='"+classStr+"' id="+topic.replace(/\//g,"-")
+                                    +" data-value="+endpoint.value+" onclick=publish('"+topic.replace(/\//g,"-")+"')>"+path[path.length-1].capitalizeFirstLetter()+"</button>");
+                        }
+                    })
+
+                } else {
+                    id = topic.replace(/\//g, "-");
+                    if (payload == "1") {
+                        $("#"+id).addClass("on");
+                    } else {
+                        $("#"+id).removeClass("on");
+                    }
+                    $("#"+id).data("value", payload);
+                }
+            });
+
+        function publish(id) {
+            value = $("#"+id).data("value");
+            topic = $("#"+id).attr("id").replace(/-/g,"/");
+            if (value == "0") {
+                $("#"+id).data("value", "1").addClass("on");
+
+            } else {
+                $("#"+id).data("value", "0").removeClass("on");
+            }
+            client.publish(topic, $("#"+id).data("value"), {"qos":1});
+        }
+
+        String.prototype.capitalizeFirstLetter = function() {
+            return this.charAt(0).toUpperCase() + this.slice(1);
+        }
+
+        </script>
+</html>
+
