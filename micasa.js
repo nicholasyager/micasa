@@ -1,7 +1,6 @@
+console.log("Loading libraries.");
 var mosca = require('mosca');
-
-console.log("Here!");
-
+console.log("Starting server.");
 var pubsubsettings = {
     type: 'mongo',
     url: 'mongodb://localhost:27017/mqtt',
@@ -38,8 +37,7 @@ server.on('published', function(packet) {
 	    console.log(err);
 	}
     }
-    console.log(packet);
-    console.log('Published', packet.payload.toString());
+    console.log('Published', packet.topic, packet.payload.toString());
 });
 
 server.on('subscribed', function(topic, client) {

@@ -9,11 +9,11 @@
     </head>
     <body>
         <h1>MiCasa</h1>
-        <div id=lights></div>
         <div id=console></div>
         <script>
             var endpoints;
-            
+           
+	 
             var client = mqtt.connect();
             client.subscribe({"#":1});
             client.on("message", function(topic, payload) {
@@ -22,41 +22,61 @@
                     console.log(endpoints);
                     $.each(endpoints, function( topic, endpoint) {
                         path = topic.split("/");
-                        ids = "";
-                        $.each(path, function(index, position) {
-                            if (index < path.length - 1) {
-                                classStr = "";
-                                if (index == 1) {
-                                    classStr = "room";
-                                } else if ( index == 2 ) {
-                                    classStr = "group";
-                                }
-                                previousIds = ids;
-                                ids += " #"+position;
-                                if ($(ids).length == 0) {
-                                    $(previousIds).append("<h"+
-                                            (index+2)+">"+position.capitalizeFirstLetter()+
-                                            "</h"+(index+2)+"><div id="+position+" class='"+classStr+"'></div>");
-                                }
-                            }
+	
+			if (path[0] == "clients") { return;}
 
-                        });
-                        if ($("#"+topic.replace(/\//g,"-")).length == 0) {
-                            classStr="button";
-                            if (endpoint.value == "1") { classStr+=" on";}
-                            $(ids).append("<div class='"+classStr+"' id="+topic.replace(/\//g,"-")
-                                    +" data-value="+endpoint.value+" onclick=publish('"+topic.replace(/\//g,"-")+"')>"+path[path.length-1].capitalizeFirstLetter()+"</button>");
-                        }
-                    })
+			var client = {};
+			client.type = path[0];
+			client.room = path[1];
+			if (path.length == 4) {
+				client.group = path[2];
+				client.position = path[3];
+			}
+			console.log(client);
+
+			if ($("#"+client.room).length == 0) {
+				$("body").append("<div id="+client.room+" class=room></div>");
+				$("#"+client.room).append("<h2>"+client.room.capitalizeFirstLetter()+"</h2>");
+
+			}
+			if (client.group != undefined && $("#"+client.room+" #"+client.group).length == 0) {
+				$("#"+client.room).append("<div id="+client.group+" class=group></div>");
+				$("#"+client.room+" #"+client.group).append("<tr><td colspan=2><h3>"+client.group.capitalizeFirstLetter()+"</h3></td><tr>");
+			}
+
+			finalID = topic.replace(/\//g,"-");
+			if ($("#"+finalID).length == 0) {
+                            	if (client.type == "lights") {
+			    		classStr = "button";
+					if ( endpoint.value == "1") { classStr+=" on";}
+	                            	$("#"+client.room+" #"+client.group).append("<div class='"+classStr+"' id="+finalID
+                                    	+" data-value="+endpoint.value+" onclick=publish('"+topic.replace(/\//g,"-")+"')>"+client.position.capitalizeFirstLetter()+"</button>");
+                        	} else if (client.type == "temperature") {
+					if ($("#"+client.room+" #temperature").length == 0) {
+						$("#"+client.room).append("<div id=temperature class=group></div>");
+						$("#"+client.room+" #temperature").append("<tr><td colspan=2><h3>Temperature</h3></td><tr>");
+						$("#"+client.room+" #temperature").append("<div class=plot id="+finalID+">"+endpoint.value+"</div>");
+					}
+				}
+
+			}
+
+
+                      });
 
                 } else {
                     id = topic.replace(/\//g, "-");
-                    if (payload == "1") {
-                        $("#"+id).addClass("on");
-                    } else {
-                        $("#"+id).removeClass("on");
-                    }
-                    $("#"+id).data("value", payload);
+		    if (id.split("-")[0] == "lights") {
+	                    if (payload == "1") {
+        	                $("#"+id).addClass("on");
+	                    } else {
+        	                $("#"+id).removeClass("on");
+	                    }
+			} else {
+				$("#"+id).text(payload);
+        	     		$("#"+id).html(parseFloat(payload) * (9/5) + 32);
+			}
+        	     $("#"+id).data("value", payload);
                 }
             });
 

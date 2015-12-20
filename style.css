@@ -5,6 +5,7 @@ html, body {
     height:100%;
     margin:0;
     margin-left:1%;
+    margin-top:1%;
 
     font-family: 'Inconsolata';
 }
@@ -13,19 +14,20 @@ div {
     padding:10px;
 }
 
-.room {
-    border-top: dashed #000 1px;
-}
-
 .group {
     display:table;
     border-collapse:collapse;
     width:100%;
+    margin-top:0.5em;
 }
 
 h1, h2, h3, h4, h5, h6 {
     font-weight:normal;
     margin:0;
+}
+
+.room h2 {
+    border-bottom: dashed #000 1px;
 }
 
 .group .button {
