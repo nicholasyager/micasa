@@ -32,10 +32,14 @@ server.on('published', function(packet) {
     try{
         clients[packet.topic].value = packet.payload.toString();
     } catch(err) {
-        console.log(err);
+	if (packet.topic.charAt(0) != "$") {
+        clients[packet.topic] = ({"value" : packet.payload.toString()});
+	} else {
+	    console.log(err);
+	}
     }
     console.log(packet);
-    console.log('Published', packet.payload);
+    console.log('Published', packet.payload.toString());
 });
 
 server.on('subscribed', function(topic, client) {
