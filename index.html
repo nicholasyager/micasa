@@ -36,6 +36,7 @@
 
 			if ($("#"+client.room).length == 0) {
 				$("body").append("<div id="+client.room+" class=room></div>");
+				console.log(client.room.capitalizeFirstLetter())
 				$("#"+client.room).append("<h2>"+client.room.capitalizeFirstLetter()+"</h2>");
 
 			}
@@ -93,7 +94,7 @@
         }
 
         String.prototype.capitalizeFirstLetter = function() {
-            return this.charAt(0).toUpperCase() + this.slice(1);
+            return this.charAt(0).toUpperCase() + this.slice(1).replace("_"," ");
         }
 
         </script>

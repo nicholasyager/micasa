@@ -10,7 +10,7 @@ var pubsubsettings = {
 
 var moscaSettings = {
     port : 1883,
-    backend : pubsubsettings,
+    //backend : pubsubsettings,
     http : {
         port : 3000,
         bundle : true,
