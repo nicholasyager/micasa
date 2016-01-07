@@ -1,9 +1,9 @@
 #!/usr/bin/python3
-from flask import Flask, abort
+from flask import Flask, abort, render_template
 from flask import json
 from flask import request
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static", static_url_path="")
 
 clients = {}
 
@@ -28,8 +28,8 @@ def register_client():
     abort(400)
 
 @app.route('/')
-def hello_world():
-    return 'Hello World!'
+def web_app():
+    return render_template('index.html')
 
 
 if __name__ == '__main__':

@@ -18,7 +18,6 @@
 
     $.getJSON("/client", function (data) {
         $.each(data, function (index, ip) {
-            ip = ip + ":3000"
             $.getJSON("http://" + ip, function (client) {
 
                 var room = client.room.replace(" ", "_");
