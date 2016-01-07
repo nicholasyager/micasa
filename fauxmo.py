@@ -386,13 +386,14 @@ class rest_api_handler(object):
 FAUXMOS = []
 
 r = requests.get("http://192.168.0.113:5000/client")
-for client in r.json():
+response = r.json()
+for client, ip in response.items():
     print client
-    clientQuery = requests.get("http://"+client)
+    clientQuery = requests.get("http://"+ip)
     json =  clientQuery.json()
     print json
     for endpoint in json['endpoints']:
-        FAUXMOS.append([endpoint['name'], rest_api_handler('http://'+client+endpoint["endpoint"])])
+        FAUXMOS.append([endpoint['name'], rest_api_handler('http://'+ip+endpoint["endpoint"])])
 
 
 if len(sys.argv) > 1 and sys.argv[1] == '-d':

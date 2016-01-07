@@ -1,11 +1,11 @@
 #!/usr/bin/python3
-from flask import Flask, abort, render_template
+from flask import Flask, abort
 from flask import json
 from flask import request
 
-app = Flask(__name__, static_folder="static", static_url_path="")
+app = Flask(__name__)
 
-clients = []
+clients = {}
 
 
 @app.route('/client', methods=['GET', 'POST'])
@@ -18,7 +18,7 @@ def register_client():
         try:
             client = request.json
             if client["ip"] not in clients:
-                clients.append(client["ip"])
+                clients[client["name"]] = client["ip"]
         except KeyError:
             abort(400)
         return "{\"status\":\"Added\"}"
@@ -27,10 +27,9 @@ def register_client():
 
     abort(400)
 
-
 @app.route('/')
 def hello_world():
-    return render_template('index.html')
+    return 'Hello World!'
 
 
 if __name__ == '__main__':
