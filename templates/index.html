@@ -1,0 +1,74 @@
+<html>
+<head>
+    <title>MiCasa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale:1.0">
+    <script src="js/jquery-2.1.4.min.js"></script>
+    <link href="style.css" rel="stylesheet">
+
+</head>
+<body>
+<h1>MiCasa</h1>
+
+<div id=console></div>
+<script>
+    String.prototype.capitalizeFirstLetter = function () {
+        return this.charAt(0).toUpperCase() + this.slice(1).replace("_", " ");
+    }
+    var endpoints;
+
+    $.getJSON("/client", function (data) {
+        $.each(data, function (index, ip) {
+            ip = ip + ":3000"
+            $.getJSON("http://" + ip, function (client) {
+
+                var room = client.room.replace(" ", "_");
+                var roomID = "#" + room;
+                console.log(client);
+                if ($(roomID).length == 0) {
+                    /** @namespace client.room */
+                    $("body").append("<div id='" + room + "' class=room></div>");
+                    $(roomID).append("<h2>" + client.room + "</h2>");
+                }
+                $(roomID).append("<div id=" + client.name + " class=group></div>");
+
+                var endpoints = client.room.replace(" ", "_") + " #" + client.name.replace(" ", "_");
+                var endpointsID = "#" + endpoints;
+
+                /** @namespace client.endpoints */
+                $.each(client.endpoints, function (index, endpoint) {
+                    console.log(endpoint);
+                    var classStr = "button";
+                    if (endpoint.status == "1") {
+                        classStr += " on";
+                    }
+                    var id = client.room.replace(" ", "_") + "-" + endpoint.name.replace(" ", "_");
+                    $(endpointsID).append("<div class='" + classStr + "' id=" + id + " data-url=" + ip + endpoint.endpoint + " data-value=" + endpoint.status + " onclick=update('" + id + "')>" + endpoint.name + "</button>");
+                })
+
+            });
+            console.log(index, ip);
+        });
+    });
+
+    function update(id) {
+        var $button =  $("#" + id);
+        var value = $button.data("value");
+        var url = "http://"+$button.data("url");
+
+        console.log(url);
+
+        $.post(url, {status: "on"}, function () {
+            if (value == "0") {
+                $("#" + id).data("value", "1").addClass("on");
+
+            } else {
+                $("#" + id).data("value", "0").removeClass("on");
+            }
+        });
+    }
+
+
+</script>
+</body>
+</html>
+
