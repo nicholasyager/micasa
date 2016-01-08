@@ -385,7 +385,7 @@ class rest_api_handler(object):
 
 FAUXMOS = []
 
-r = requests.get("http://192.168.0.113:5000/client")
+r = requests.get("http://127.0.0.1/client")
 response = r.json()
 for client, ip in response.items():
     print client
