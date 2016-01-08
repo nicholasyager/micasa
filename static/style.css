@@ -1,33 +1,42 @@
 @import url(http://fonts.googleapis.com/css?family=Inconsolata);
 
 html, body {
-    width:99%;
+    width:100%;
     height:100%;
     margin:0;
-    margin-left:1%;
-    margin-top:1%;
 
     font-family: 'Inconsolata';
 }
 
-div {
-    padding:10px;
+header {
+    background-color:black;
+    color: white;
+    padding: 1em;
 }
+
 
 .group {
     display:table;
     border-collapse:collapse;
     width:100%;
-    margin-top:0.5em;
+    margin-top:0.25em;
+    margin-bottom:0.25em;
 }
 
 h1, h2, h3, h4, h5, h6 {
     font-weight:normal;
     margin:0;
+    text-align: center;
+}
+
+.room {
+    margin-left:0.5em;
+    margin-right:0.5em;
 }
 
 .room h2 {
-    border-bottom: dashed #000 1px;
+    padding:0.25em;
+    margin-top:0.5em;
 }
 
 .group .button {
@@ -36,6 +45,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .button {
     text-align:center;
+    vertical-align:middle;
     font-family: 'Inconsolata';
     color:black;
     font-size: 125%;

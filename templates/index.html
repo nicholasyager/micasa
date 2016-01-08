@@ -1,73 +1,191 @@
+<!DOCTYPE html>
 <html>
-<head>
-    <title>MiCasa</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale:1.0">
-    <script src="js/jquery-2.1.4.min.js"></script>
-    <link href="style.css" rel="stylesheet">
+	<head>
+		<title>MiCasa</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale:1.0">
+		<script src="js/jquery-2.1.4.min.js"></script>
+		<script src="js/rainbowvis.js"></script>
+		<link href="style.css" rel="stylesheet">
+		<link href="svg.css" rel="stylesheet">
 
-</head>
-<body>
-<h1>MiCasa</h1>
+	</head>
+	<body>
+		<header>
+			<h1>MiCasa</h1>
+		</header>
+		<div id="container">
+			<svg id="floorplan" viewBox="0 0 1000 504" xmlns="http://www.w3.org/2000/svg">
 
-<div id=console></div>
-<script>
-    String.prototype.capitalizeFirstLetter = function () {
-        return this.charAt(0).toUpperCase() + this.slice(1).replace("_", " ");
-    }
-    var endpoints;
+				<!-- rooms -->
+				<!-- Bedroom -->
+				<g id=bedroom>
+				<rect class=room x=682 y=0 width=318 height=390></rect>
+				<text x=841 y=196 font-family="Courier">Bedroom</text>
+				<text class=room_temp x=841 y=213 font-family="Courier"></text>
+				</g>
 
-    $.getJSON("/client", function (data) {
-        $.each(data, function (index, ip) {
-            $.getJSON("http://" + ip, function (client) {
+				<!-- Kitchen -->
+				<g id=kitchen>
+				<rect class=room x=285 y=311 width=217 height=193></rect>
+				<text x=393 y=412 font-family="Courier">Kitchen</text>
+				</g>
 
-                var room = client.room.replace(" ", "_");
-                var roomID = "#" + room;
-                console.log(client);
-                if ($(roomID).length == 0) {
-                    /** @namespace client.room */
-                    $("body").append("<div id='" + room + "' class=room></div>");
-                    $(roomID).append("<h2>" + client.room + "</h2>");
-                }
-                $(roomID).append("<div id=" + client.name + " class=group></div>");
+				<!--Hallway-->
+				<g id=hallway>
+				<rect class=room x=502 y=171 width=180 height=112></rect>
+				<text x=592 y=232 font-family="Courier">Hallway</text>
+				</g>
 
-                var endpoints = client.room.replace(" ", "_") + " #" + client.name.replace(" ", "_");
-                var endpointsID = "#" + endpoints;
+				<!-- Living Room --> 
+				<g id=livingroom>
+				<polygon class=room points="0,0 0,390 284,390 284,311 502,311 502,0 0,0"></polygon>
+				<text x=251 y=196 font-family="Courier">Living Room</text>
+				<text class=room_temp x=251 y=196 font-family="Courier"> </text>
+				</g>
 
-                /** @namespace client.endpoints */
-                $.each(client.endpoints, function (index, endpoint) {
-                    console.log(endpoint);
-                    var classStr = "button";
-                    if (endpoint.status == "1") {
-                        classStr += " on";
-                    }
-                    var id = client.room.replace(" ", "_") + "-" + endpoint.name.replace(" ", "_");
-                    $(endpointsID).append("<div class='" + classStr + "' id=" + id + " data-url=" + ip + endpoint.endpoint + " data-value=" + endpoint.status + " onclick=update('" + id + "')>" + endpoint.name + "</button>");
-                })
-
-            });
-            console.log(index, ip);
-        });
-    });
-
-    function update(id) {
-        var $button =  $("#" + id);
-        var value = $button.data("value");
-        var url = "http://"+$button.data("url");
-
-        console.log(url);
-
-        $.post(url, {status: "on"}, function () {
-            if (value == "0") {
-                $("#" + id).data("value", "1").addClass("on");
-
-            } else {
-                $("#" + id).data("value", "0").removeClass("on");
-            }
-        });
-    }
+				<!-- Bathroom -->
+				<g id=bathroom>
+				<polygon class=room points="557,284 557,380 502,380 502,504 682,504 682,284 557,284"></polygon>
+				<text x=592 y=412 font-family="Courier">Bathroom</text>
+				</g>
 
 
-</script>
-</body>
+				<!-- Walls -->
+				<!-- Kitchen Walls -->
+				<line class=interior x1=284 y1=390 x2=284 y2=311></line>
+				<line class=interior x1=284 y1=311 x2=353 y2=311></line>
+				<line class=interior x1=434 y1=311 x2=502 y2=311></line>
+
+				<!-- Bathroom and kitchen wall -->
+				<line class=interior x1=502 y1=271 x2=502 y2=504></line>
+
+				<!-- Livingroom and Stairway wall -->
+				<line class=interior x1=502 y1=0 x2=502 y2=184></line>
+				<line class=interior x1=502 y1=171 x2=515 y2=171></line>
+				<line class=door x1=515 y1=171 x2=583 y2=171></line>
+				<line class=interior x1=583 y1=171 x2=682 y2=171></line>
+
+				<!-- Hall Closet -->
+				<line class=interior x1=502 y1=284 x2=509 y2=284></line>
+				<line class=door x1=509 y1=284 x2=551 y2=284></line>
+				<line class=interior x1=551 y1=284 x2=606 y2=284></line>
+
+				<!-- Bathroom Closet -->
+				<line class=interior x1=557 y1=284 x2=557 y2=330></line>
+				<line class=door x1=557 y1=330 x2=557 y2=373></line>
+				<line class=interior x1=557 y1=373 x2=557 y2=380></line>
+				<line class=interior x1=557 y1=380 x2=502 y2=380></line>
+				<line class=interior x1=557 y1=325 x2=502 y2=325></line>
+
+				<!-- Bathroom Door and Hall Wall -->
+				<line class=door x1=606 y1=284 x2=674 y2=284></line>
+				<line class=interior x1=674 y1=284 x2=682 y2=284></line>
+
+				<!-- Bedroom and stairs wall -->
+				<line class=interior x1=682 y1=156 x2=682 y2=193></line>
+				<line class=door x1=682 y1=156 x2=682 y2=88></line>
+				<line class=interior x1=682 y1=88 x2=682 y2=0></line>
+
+				<!-- Bedroom door -->
+				<line class=door x1=682 y1=193 x2=682 y2=261></line>
+
+				<!-- Bedroom/Bathroom Wall -->
+				<line class=interior x1=682 y1=284 x2=682 y2=261></line>
+				<line class=interior x1=682 y1=284 x2=682 y2=390></line>
+
+				<!-- Bedroom Closet -->
+				<line class=interior x1=596 y1=171 x2=596 y2=59></line>
+				<line class=interior x1=596 y1=59 x2=682 y2=59></line>
+
+				<polygon id=exterior points="1,1 1,390 284,390 284,503 683,503, 683,390 999,390 999,1 1,1"></polygon>
+			</svg>
+		</div>
+
+		<script>
+
+var endpoints;
+
+var rainbow = new Rainbow();
+rainbow.setNumberRange(60, 70);
+rainbow.setSpectrum('blue', 'red');
+
+function getTemperature(ip, id) {
+	$.getJSON("http://" + ip + "/temperature", function (client) {
+		var tempF = client.temperature * (9/5) + 32;
+		$(id+" .room_temp").text(tempF);
+		$(id+" rect").css("fill","#"+rainbow.colorAt(Math.round(tempF)));
+	});
+}
+
+$(document).ready(function() {
+	$.getJSON("/client", function (data) {
+		$.each(data, function (index, ip) {
+			$.getJSON("http://" + ip, function (client) {
+
+				var room = client.room.replace(" ", "_");
+				var roomID = "#" + room;
+				console.log(client);
+				if ($(roomID).length == 0) {
+					/** @namespace client.room */
+					$("body").append("<div id='" + room + "' class=room></div>");
+					$(roomID).append("<h2>" + client.room + "</h2>");
+				}
+				$(roomID).append("<div id=" + client.name + " class=group></div>");
+
+				var endpoints = client.room.replace(" ", "_") + " #" + client.name.replace(" ", "_");
+				var endpointsID = "#" + endpoints;
+
+				/** @namespace client.endpoints */
+				$.each(client.endpoints, function (index, endpoint) {
+					var classStr = "button";
+					if (endpoint.status == "1") {
+						classStr += " on";
+					}
+					var id = client.room.replace(" ", "_") + "-" + endpoint.name.replace(" ", "_");
+					$(endpointsID).append("<div class='" + classStr + "' id=" + id + " data-url=" + ip + endpoint.endpoint + " data-value=" + endpoint.status + " onclick=update('" + id + "')>" + endpoint.name + "</button>");
+				});
+				if (typeof client.temperature != 'undefined') {
+					var tempF = client.temperature * (9/5) + 32;
+					var id = "g#"+client.room.replace(" ","").toLowerCase();
+					$(id+" .room_temp").text(tempF);
+					$(id+" rect").css("fill","#"+rainbow.colorAt(Math.round(tempF)));
+					$(id+" text").css("fill","#fff");
+					setInterval(function() {getTemperature(ip, id)}, 2000);
+				}
+
+
+
+
+			});
+			console.log(index, ip);
+		});
+	});
+});
+
+function update(id) {
+	var $button =  $("#" + id);
+	var value = $button.data("value");
+	var url = "http://"+$button.data("url");
+
+	var newValue;
+	if (value == "0") {
+		newValue = "1";
+	} else {
+		newValue = "0";
+	}
+
+	$.post(url, {status: newValue}, function () {
+		if (value == "0") {
+			$("#" + id).data("value", "1").addClass("on");
+
+		} else {
+			$("#" + id).data("value", "0").removeClass("on");
+		}
+	});
+}
+
+
+		</script>
+	</body>
 </html>
 
