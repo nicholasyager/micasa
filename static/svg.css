@@ -6,6 +6,13 @@
     shape-rendering:crispEdges;
     margin-top:1em;
     margin-bottom:1em;
+    padding-left:1em;
+    padding-right:1em;
+}
+
+svg {
+    width:100%;
+    height: auto;
 }
 
 #exterior {
@@ -16,7 +23,7 @@
 
 .interior {
     stroke: #000000;
-    stroke-width:1px;
+    stroke-width:2px;
     stroke-opacity:1;
 }
 
@@ -29,7 +36,7 @@
 .room {
     pointer-events:all;
     fill:#FFF;
-
+    transition: fill 0.5s linear;
 }
 
 .room_temp {
@@ -53,3 +60,4 @@ g:hover > text{
     fill: #FFF;
 }
 */
+

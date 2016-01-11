@@ -13,6 +13,7 @@
 		<header>
 			<h1>MiCasa</h1>
 		</header>
+		<div class=flex>
 		<div id="container">
 			<svg id="floorplan" viewBox="0 0 1000 504" xmlns="http://www.w3.org/2000/svg">
 
@@ -40,7 +41,7 @@
 				<g id=livingroom>
 				<polygon class=room points="0,0 0,390 284,390 284,311 502,311 502,0 0,0"></polygon>
 				<text x=251 y=196 font-family="Courier">Living Room</text>
-				<text class=room_temp x=251 y=196 font-family="Courier"> </text>
+				<text class=room_temp x=251 y=213 font-family="Courier"> </text>
 				</g>
 
 				<!-- Bathroom -->
@@ -100,20 +101,21 @@
 				<polygon id=exterior points="1,1 1,390 284,390 284,503 683,503, 683,390 999,390 999,1 1,1"></polygon>
 			</svg>
 		</div>
-
+		<div id=room_container></div>
+		</div>
 		<script>
 
 var endpoints;
 
 var rainbow = new Rainbow();
-rainbow.setNumberRange(60, 70);
+rainbow.setNumberRange(60, 75);
 rainbow.setSpectrum('blue', 'red');
 
 function getTemperature(ip, id) {
 	$.getJSON("http://" + ip + "/temperature", function (client) {
 		var tempF = client.temperature * (9/5) + 32;
 		$(id+" .room_temp").text(tempF);
-		$(id+" rect").css("fill","#"+rainbow.colorAt(Math.round(tempF)));
+		$(id+" .room").css("fill","#"+rainbow.colorAt(Math.round(tempF)));
 	});
 }
 
@@ -127,7 +129,7 @@ $(document).ready(function() {
 				console.log(client);
 				if ($(roomID).length == 0) {
 					/** @namespace client.room */
-					$("body").append("<div id='" + room + "' class=room></div>");
+					$("#room_container").append("<div id='" + room + "' class=room></div>");
 					$(roomID).append("<h2>" + client.room + "</h2>");
 				}
 				$(roomID).append("<div id=" + client.name + " class=group></div>");
@@ -148,9 +150,9 @@ $(document).ready(function() {
 					var tempF = client.temperature * (9/5) + 32;
 					var id = "g#"+client.room.replace(" ","").toLowerCase();
 					$(id+" .room_temp").text(tempF);
-					$(id+" rect").css("fill","#"+rainbow.colorAt(Math.round(tempF)));
+					$(id+" .room").css("fill","#"+rainbow.colorAt(Math.round(tempF)));
 					$(id+" text").css("fill","#fff");
-					setInterval(function() {getTemperature(ip, id)}, 2000);
+					setInterval(function() {getTemperature(ip, id)}, 5000);
 				}
 
 
