@@ -62,13 +62,13 @@
 				<g id=office>
 				<polygon class=room points="0,197 153,197 189,224 189,383 0,383"></polygon>
 				<text x=95 y=295 font-family="Courier">Office</text>
-				<text class=room_temp x=756 y=220 font-family="Courier"> </text>
+				<text class=room_temp x=95 y=315 font-family="Courier"> </text>
 				</g>
 
 				<!-- Dressing Room --> 
-				<g id=dressingroom>
+				<g id=closet>
 				<polygon class=room points="0,159 153,159 189,134 189,0 0,0"></polygon>
-				<text x=95 y=85 font-family="Courier">Dressing Room</text>
+				<text x=95 y=85 font-family="Courier">Closet</text>
 				<text class=room_temp x=756 y=220 font-family="Courier"> </text>
 				</g>
 
@@ -124,13 +124,13 @@
                 <line class=door x1=403 y1=174 x2=403 y2=128 />
                 <line class=interior x1=403 y1=128 x2=403 y2=0 />
                 <line class=interior x1=403 y1=107 x2=398 y2=107 />
-                <line class=door x1=398 y1=107 x2=352 y2=107 />
-                <line class=interior x1=352 y1=107 x2=350 y2=107 />
-                <line class=interior x1=350 y1=107 x2=350 y2=46 />
+                <line class=door x1=398 y1=107 x2=352 y2=107 ></line>
+                <line class=interior x1=352 y1=107 x2=350 y2=107 ></line>
+                <line class=interior x1=350 y1=107 x2=350 y2=46 ></line>
 
 
                 <!-- Perimeter Walls -->
-                <polygon id=exterior points="0,0 1000,0 1000,366 641,366 641,383 0,383" />           
+                <polygon id=exterior points="0,0 1000,0 1000,366 641,366 641,383 0,383" ></polygon>
 
             </svg>
 		</div>
@@ -144,18 +144,53 @@ var rainbow = new Rainbow();
 rainbow.setNumberRange(60, 75);
 rainbow.setSpectrum('blue', 'red');
 
-function getTemperature(ip, id) {
-	$.getJSON("http://" + ip + "/temperature", function (client) {
+/**
+ * Decimal adjustment of a number.
+ *
+ * @param {String}  type  The type of adjustment.
+ * @param {Number}  value The number.
+ * @param {Integer} exp   The exponent (the 10 logarithm of the adjustment base).
+ * @returns {Number} The adjusted value.
+ */
+function decimalAdjust(type, value, exp) {
+    // If the exp is undefined or zero...
+    if (typeof exp === 'undefined' || +exp === 0) {
+      return Math[type](value);
+    }
+    value = +value;
+    exp = +exp;
+    // If the value is not a number or the exp is not an integer...
+    if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+      return NaN;
+    }
+    // Shift
+    value = value.toString().split('e');
+    value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+    // Shift back
+    value = value.toString().split('e');
+    return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+}
+
+// Decimal round
+if (!Math.round10) {
+	Math.round10 = function(value, exp) {
+    	return decimalAdjust('round', value, exp);
+	};
+}
+
+function getTemperature(client_id, id) {
+	$.getJSON("/clients/"+client_id+"/temperature", function (client) {
 		var tempF = client.temperature * (9/5) + 32;
-		$(id+" .room_temp").text(tempF);
+		$(id+" .room_temp").text(Math.round10(tempF,-1));
 		$(id+" .room").css("fill","#"+rainbow.colorAt(Math.round(tempF)));
 	});
 }
 
 $(document).ready(function() {
-	$.getJSON("/client", function (data) {
-		$.each(data, function (index, ip) {
-			$.getJSON("http://" + ip, function (client) {
+	$.getJSON("/clients", function (data) {
+        console.log(data);
+		$.each(data, function (id, client) {
+		//	$.getJSON("http://" + ip, function (client) {
 
 				var room = client.room.replace(" ", "_");
 				var roomID = "#" + room;
@@ -165,7 +200,7 @@ $(document).ready(function() {
 					$("#room_container").append("<div id='" + room + "' class=room></div>");
 					$(roomID).append("<h2>" + client.room + "</h2>");
 				}
-				$(roomID).append("<div id=" + client.name + " class=group></div>");
+				$(roomID).append("<div id=" + client.name.replace(" ", "_") + " class=group></div>");
 
 				var endpoints = client.room.replace(" ", "_") + " #" + client.name.replace(" ", "_");
 				var endpointsID = "#" + endpoints;
@@ -173,52 +208,55 @@ $(document).ready(function() {
 				/** @namespace client.endpoints */
 				$.each(client.endpoints, function (index, endpoint) {
 					var classStr = "button";
-					if (endpoint.status == "1") {
+					if (endpoint.status.on) {
 						classStr += " on";
 					}
-					var id = client.room.replace(" ", "_") + "-" + endpoint.name.replace(" ", "_");
-					$(endpointsID).append("<div class='" + classStr + "' id=" + id + " data-url=" + ip + endpoint.endpoint + " data-value=" + endpoint.status + " onclick=update('" + id + "')>" + endpoint.name + "</button>");
+					var id = endpoint.endpoint;
+					$(endpointsID).append("<div class='" + classStr + "' id=" + id + " data-value=" + endpoint.status.on + " onclick=update('"+encodeURIComponent(client.id)+"','" + endpoint.endpoint + "')>" + endpoint.name + "</button>");
 				});
 				if (typeof client.temperature != 'undefined') {
 					var tempF = client.temperature * (9/5) + 32;
 					var id = "g#"+client.room.replace(" ","").toLowerCase();
-					$(id+" .room_temp").text(tempF);
+					$(id+" .room_temp").text(Math.round10(tempF,-1));
 					$(id+" .room").css("fill","#"+rainbow.colorAt(Math.round(tempF)));
 					$(id+" text").css("fill","#fff");
-					setInterval(function() {getTemperature(ip, id)}, 5000);
+					setInterval(function() {getTemperature(client.id, id)}, 5000);
 				}
 
 
 
 
-			});
-			console.log(index, ip);
+			//});
+			//console.log(index, ip);
 		});
 	});
 });
 
-function update(id) {
+function update(name, id) {
 	var $button =  $("#" + id);
 	var value = $button.data("value");
-	var url = "http://"+$button.data("url");
 
 	var newValue;
-	if (value == "0") {
-		newValue = "1";
+	if (!value) {
+		newValue = true;
 	} else {
-		newValue = "0";
+		newValue = false;
 	}
 
-	$.post(url, {status: newValue}, function () {
-		if (value == "0") {
-			$("#" + id).data("value", "1").addClass("on");
-
+    $.ajax({
+        method: 'PATCH',
+        url: '/clients/'+name+"/"+id,
+        data: JSON.stringify({state: {on: newValue}}),
+        contentType: "application/json"
+    }).done(function() {
+        if (!value) {
+			$("#" + id).data("value", true).addClass("on");
 		} else {
-			$("#" + id).data("value", "0").removeClass("on");
+			$("#" + id).data("value", false).removeClass("on");
 		}
-	});
-}
+    });
 
+}
 
 		</script>
 	</body>
