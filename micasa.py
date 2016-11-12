@@ -37,6 +37,8 @@ class Client:
 
     def to_json(self):
         return {
+            'manufacturername': 'nicholasyager',
+            'type': 'Relay',
             'room': self.room,
             'name': self.name,
             'id': self.id,
@@ -77,6 +79,7 @@ class HueClient(Client):
 
     def __init__(self, id, light, room, url):
         self.id = id
+        self.light = light
         self.name = light['name']
         self.state = light['state']
         self.room = room
@@ -88,6 +91,8 @@ class HueClient(Client):
 
     def to_json(self):
         return {
+            'manufacturername': self.light['manufacturername'],
+            'type': self.light['type'],
             'room': self.room,
             'name': self.name,
             'id': self.id,
