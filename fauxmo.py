@@ -390,7 +390,7 @@ response = r.json()
 for _, client in response.items():
     if client['manufacturername'] == 'nicholasyager':
         for endpoint in client['endpoints']:
-            FAUXMOS.append([endpoint['name'], rest_api_handler('http://127.0.0.1/clients/'+client['id']'/'+endpoint["endpoint"])])
+            FAUXMOS.append([endpoint['name'], rest_api_handler('http://127.0.0.1/clients/'+client['id']+'/'+endpoint["endpoint"])])
 
 
 if len(sys.argv) > 1 and sys.argv[1] == '-d':
